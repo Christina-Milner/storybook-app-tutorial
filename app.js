@@ -45,7 +45,7 @@ app.engine('.hbs',
     })
 )
 app.set('view engine', '.hbs')
- 
+
 // Sessions
 
 app.use(session({
