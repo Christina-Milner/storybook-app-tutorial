@@ -3,6 +3,7 @@ const express = require('express')
 const dotenv = require('dotenv')
 const morgan = require('morgan')
 const exphbs = require('express-handlebars')
+const methodOverride = require('method-override')
 const connectDB = require('./config/db')
 const passport = require('passport')
 const session = require('express-session')
@@ -28,7 +29,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Handlebars Helpers
-const { formatDate, stripTags, truncate, editIcon } = require('./helpers/hbs')
+const { formatDate, stripTags, truncate, editIcon, select } = require('./helpers/hbs')
 
 // Handlebars
  
@@ -39,13 +40,14 @@ app.engine('.hbs',
             stripTags,
             truncate,
             editIcon,
+            select,
         },
         defaultLayout: 'main',
         extname: '.hbs',
     })
 )
 app.set('view engine', '.hbs')
-
+ 
 // Sessions
 
 app.use(session({

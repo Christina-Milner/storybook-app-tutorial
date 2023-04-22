@@ -55,8 +55,8 @@ router.get('/edit/:id', ensureAuth, async (req, res) => {
     if (!story) {
         return res.render('error/404')
     }
-
-    if (story.user !== req.user.id) {
+    // Need a .toString() here or we're comparing an ObjectId to a string
+    if (story.user.toString() !== req.user.id) {
         res.redirect('/stories')
     } else {
         res.render('stories/edit', {
