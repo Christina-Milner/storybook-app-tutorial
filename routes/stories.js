@@ -48,20 +48,25 @@ router.get('/', ensureAuth, async (req, res) => {
 // @route GET /stories/edit/:id
 
 router.get('/edit/:id', ensureAuth, async (req, res) => {
-    const story = await Story.findOne({
-        _id: req.params.id
-    }).lean()
+    try {
+        const story = await Story.findOne({
+            _id: req.params.id
+        }).lean()
 
-    if (!story) {
-        return res.render('error/404')
-    }
-    // Need a .toString() here or we're comparing an ObjectId to a string
-    if (story.user.toString() !== req.user.id) {
-        res.redirect('/stories')
-    } else {
-        res.render('stories/edit', {
-            story,
-        })
+        if (!story) {
+            return res.render('error/404')
+        }
+        // Need a .toString() here or we're comparing an ObjectId to a string
+        if (story.user.toString() !== req.user.id) {
+            res.redirect('/stories')
+        } else {
+            res.render('stories/edit', {
+                story,
+            })
+        }
+    } catch (err) {
+        console.error(err)
+        return res.render('error/500')
     }
 })
 
@@ -69,21 +74,41 @@ router.get('/edit/:id', ensureAuth, async (req, res) => {
 // @route PUT /stories/:id
 
 router.put('/:id', ensureAuth, async (req, res) => {
-    let story = await Story.findById(req.params.id).lean()
+    try {
+        let story = await Story.findById(req.params.id).lean()
 
-    if (!story) {
-        return res.render('error/404')
-    }
-    if (story.user.toString() !== req.user.id) {
-        res.redirect('/stories')
-    } else {
-        story = await Story.findOneAndUpdate({_id: req.params.id}, req.body, {
-            new: true,
-            runValidators: true
-        })
+        if (!story) {
+            return res.render('error/404')
+        }
+        if (story.user.toString() !== req.user.id) {
+            res.redirect('/stories')
+        } else {
+            story = await Story.findOneAndUpdate({_id: req.params.id}, req.body, {
+                new: true,
+                runValidators: true
+            })
 
-        res.redirect('/dashboard')
+            res.redirect('/dashboard')
+        }
+    } catch (err) {
+        console.error(err)
+        return res.render('error/500')
     }
 })
+
+// @desc Delete story
+// @route DELETE /stories/:id
+
+router.delete('/:id', ensureAuth, async (req, res) => {
+    try {
+        // TypeError: Story.remove() is not a function
+        await Story.deleteOne({ _id: req.params.id})
+        res.redirect('/dashboard')
+    } catch (err) {
+        console.error(err)
+        return res.render('error/500')
+    }
+})
+
 
 module.exports = router
